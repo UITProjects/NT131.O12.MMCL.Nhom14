@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_home_activity"
+    tools:context=".HomeActivity">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="@id/clTemperature"
+        app:layout_constraintBottom_toTopOf="@id/clTemperature"
+        android:layout_marginBottom="50dp">
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lavSync"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/sync"
+            />
+        <TextView
+            android:id="@+id/tvLastUpdated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toRightOf="@id/lavSync"
+            app:layout_constraintTop_toTopOf="@id/lavSync"
+            app:layout_constraintBottom_toBottomOf="@id/lavSync"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:text="Last updated: "/>
+        <TextView
+            android:id="@+id/tvCurrentTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/tvLastUpdated"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:text="Thursday, November 30, 2023"
+            android:layout_marginTop="5dp"
+            android:textSize="16sp"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clTemperature"
+        android:layout_width="360dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="150dp"
+        android:background="@drawable/bg_temperature"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lavTemperature"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="12dp"
+            app:layout_constraintBottom_toBottomOf="@id/tvTemperature"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvTemperature"
+            app:layout_constraintRight_toLeftOf="@id/tvTemperature"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/temperature" />
+
+        <TextView
+            android:id="@+id/tvTemperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp"
+            android:text="30 °C"
+            android:textSize="70sp"
+            android:textColor="@color/white"
+            app:layout_constraintLeft_toRightOf="@id/lavTemperature"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/lavCold"
+            />
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lavCold"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/cold" />
+
+        <TextView
+            android:id="@+id/tvMin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="Min: 28 °C"
+            android:textColor="#ADD8E6"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="@id/lavCold"
+            app:layout_constraintLeft_toRightOf="@id/lavCold"
+            app:layout_constraintTop_toTopOf="@id/lavCold" />
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lavHot"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/tvMax"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/hot" />
+
+        <TextView
+            android:id="@+id/tvMax"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:text="Max: 38 °C"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#FFFF99"
+            app:layout_constraintBottom_toBottomOf="@id/lavHot"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/lavHot" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clHumidity"
+        android:layout_width="360dp"
+        android:layout_height="200dp"
+        app:layout_constraintTop_toBottomOf="@id/clTemperature"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="70dp"
+        android:background="@drawable/bg_temperature">
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lavHumidity"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="12dp"
+            app:layout_constraintBottom_toBottomOf="@id/tvHumidity"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvHumidity"
+            app:layout_constraintRight_toLeftOf="@id/tvHumidity"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/humidity" />
+        <TextView
+            android:id="@+id/tvHumidity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp"
+            android:text="79 % "
+            android:textSize="70sp"
+            android:textColor="@color/white"
+            app:layout_constraintLeft_toRightOf="@id/lavHumidity"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/ivHighHumidity"
+            />
+        <ImageView
+            android:id="@+id/ivLowHumidity"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:src="@drawable/ic_low_humidity"
+            />
+        <TextView
+            android:id="@+id/tvLowHumidity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="Min: 70 %"
+            android:textColor="#ADD8E6"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="@id/ivLowHumidity"
+            app:layout_constraintLeft_toRightOf="@id/ivLowHumidity"
+            app:layout_constraintTop_toTopOf="@id/ivLowHumidity" />
+        <ImageView
+            android:id="@+id/ivHighHumidity"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="20sp"
+            android:src="@drawable/ic_high_humidity"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/tvHighHumidity" />
+        <TextView
+            android:id="@+id/tvHighHumidity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:text="Max: 78 %"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#FFFF99"
+            app:layout_constraintBottom_toBottomOf="@id/ivHighHumidity"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/ivHighHumidity" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
