@@ -1,6 +1,11 @@
 from slave import listen_from_slave_Thread
-from master import listen_master_thread
 from time import sleep
+from master import create_master_thread
 listen_from_slave_Thread.start()
 sleep(5)
-listen_master_thread.start()
+while True:
+    master_thread = create_master_thread()
+    master_thread.start()
+    print("thread create")
+    master_thread.join()
+    sleep(5)

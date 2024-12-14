@@ -7,3 +7,4 @@ Script/mariadb/self_ssl/
 Script/nginx/ssl/
 Server/src/tmp/
 Client/src/__pycache__/
+Server/ssl/

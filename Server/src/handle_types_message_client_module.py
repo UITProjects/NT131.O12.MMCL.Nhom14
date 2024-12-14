@@ -1,24 +1,50 @@
 import base64
+import json
+import threading
 
 import mysql.connector.errors
 import pandas
+import requests
 from random_otp.generator import generate_numeric_otp
 import cipher_module
 from cipher_module import hash_password
 import smtp
-from database_statements_module import general_statements
+from database_module import general_statements
 import database_module
 from sqlalchemy import create_engine
 from time import time
 import datetime
 import pandas as pd
+from smtp import send_email_warning
+from threading import Lock
 
 
-def authentication_credential(username_primary: str, password: str, device_name: str, refresh_token: str) -> dict[
-                                                                                                                 str, str] | None:
+def to_thingsboard(temp: float, humidity: float):
+    headers = {
+        "Content-type": "application/json"
+    }
+    json_dict = {
+        "humidity": humidity,
+        "temperature": temp,
+    }
+    try:
+        json_data = json.dumps(json_dict)
+        response1 = requests.post("http://thingsboard:9090/api/v1/xNX9FiLyWenmKNaj2pXV/telemetry",
+                                  data=json_data,
+                                  headers=headers, timeout=1)
+    except requests.exceptions.ConnectionError:
+
+        print("thingsboard is not available")
+        return
+    if response1.status_code > 400:
+        print(response1.json())
+
+
+def authentication_credential(username: str, password: str, device_name: str, refresh_token: str) -> dict[
+                                                                                                         str, str] | None:
     if refresh_token == "None":
         response = database_module.access_database(
-            general_statements["authentication_credential"], (username_primary, hash_password(password))
+            general_statements["authentication_credential"], (username, hash_password(password))
         )
         if len(response) == 0:
             return None
@@ -28,7 +54,7 @@ def authentication_credential(username_primary: str, password: str, device_name:
             database_module.access_database(general_statements["update_token"], (
                 uuid_str,
                 device_name,
-                username_primary,
+                username,
                 refresh_token_str
             )
                                             )
@@ -38,17 +64,19 @@ def authentication_credential(username_primary: str, password: str, device_name:
                     }
 
 
-def create_account(username_primary: str, password: str, email: str) -> bool:
+def create_account(username: str, password: str, email: str) -> bool:
     try:
         database_module.access_database(general_statements["create_account"],
                                         (
-                                            username_primary,
+                                            username,
                                             hash_password(password),
                                             email
                                         )
                                         )
     except mysql.connector.errors.IntegrityError as error:
         return False
+
+    database_module.access_database("insert into account_setting(`username`) values(%s)", (username,))
     return True
 
 
@@ -145,28 +173,55 @@ def get_weather_data(argument: dict):
 
 
 def update_temp(time_primary: int, temperature: float, humidity: float) -> bool:
-    time_readable_str = datetime.datetime.fromtimestamp(time_primary).strftime("%d-%m-%Y: %H:%M:%S ")
     try:
         database_module.access_database(general_statements["update_temp"], (
             time_primary,
-            time_readable_str,
             temperature,
             humidity
         )
                                         )
     except mysql.connector.errors.IntegrityError:
         return False
+    to_thingsboard(temperature, humidity)
+
+    response = database_module.access_database(general_statements["check_limit"], (temperature,))
+    if len(response) == 1:
+        response = database_module.access_database(general_statements["get_emails"])
+        emails = [email[0] for email in response]
+        send_email_thread = threading.Thread(target=send_email_warning, args=(emails, temperature, humidity))
+        send_email_thread.start()
+
     return True
 
 
 def current():
-    response_from_mysql = database_module.access_database(general_statements["get_temp"])
-    return {
+    response_mysql = database_module.access_database(general_statements["get_temp"])
+    current_day_left: float = datetime.datetime.fromtimestamp(float(response_mysql[0][2])).replace(hour=0, minute=0,
+                                                                                                   second=1).timestamp()
+    current_day_left = int(current_day_left)
+    current_day_right = response_mysql[0][2]
+
+    temperature_mysql = general_statements["get_min_max"].format(type="temperature")
+    humidity_mysql = general_statements["get_min_max"].format(type="humidity")
+    temperature = database_module.access_database(temperature_mysql, (current_day_left, current_day_right))
+    humidity = database_module.access_database(humidity_mysql, (current_day_left, current_day_right))
+    esp8266_delay = database_module.access_database(general_statements["get_device_info"], ("esp8266",))[0][1]
+    response = {
         "type": "current time",
-        "time": response_from_mysql[0][2],
-        "temperature": response_from_mysql[0][0],
-        "humidity": response_from_mysql[0][1]
+        "time": response_mysql[0][2],
+        "delay": esp8266_delay,
+        "temperature": {
+            "current": response_mysql[0][0],
+            "min": temperature[len(temperature) - 1][0] if len(temperature) > 0 else None,
+            "max": temperature[0][0] if len(temperature) > 0 else None
+        },
+        "humidity": {
+            "current": response_mysql[0][1],
+            "min": humidity[len(humidity) - 1][0] if len(humidity) > 0 else None,
+            "max": humidity[0][0] if len(humidity) > 0 else None
+        }
     }
+    return response
 
 
 def history(left, right, order, limit, download=False):
@@ -202,8 +257,10 @@ def history(left, right, order, limit, download=False):
 def device_setting(device_name: str):
     response = database_module.access_database(general_statements["get_device_info"], (device_name,))
     return {
-        "device_name": device_name,
-        "delay_time": str(response[0][1]) + "ms"
+        "Device_name": device_name,
+        "Delay time": str(response[0][1]) + "ms",
+        "Warning limit temperature": response[0][2],
+        "Warning limit humidity": response[0][3]
     }
 
 
@@ -215,3 +272,8 @@ def change_password(argument: dict):
     except:
         return {"status": "Something is not right"}
     return {"status": "success", "type": "reset password"}
+
+
+def set_user_notification(notification: int, refresh_token: str):
+    response = database_module.access_database(general_statements["set_user_notification"],
+                                               (notification, refresh_token))
